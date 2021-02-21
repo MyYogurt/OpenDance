@@ -10,10 +10,10 @@ Open Dance allows users to search any music video on the internet and dance to i
 
 ## How we built it
 
-OpenDance runs on the [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) technology developed by the Carnegie Mellon Perceptual Computing Lab. OpenPose is a real=time system to detect human keypoints on images and videos.
+OpenDance runs on the [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) technology developed by the Carnegie Mellon Perceptual Computing Lab. OpenPose is a real-time system to detect human keypoints on images and videos.
 
 ## Challenges we ran into
-Some challenges we face while developing this program was figuring out the correct dependencies required for the open pose repository. Another challenge we faced was increasing the rate of
+Some challenges we face while developing this program was figuring out the correct dependencies required for the open pose repository.
 
 ## Running
 
