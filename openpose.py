@@ -76,12 +76,10 @@ def processVideo(file_path):
   frames = []
   frame_num = 0
 
-  print("before")
   while cv.waitKey(1) < 0:
       hasFrame, frame = cap.read()
       if not hasFrame:
           cv.waitKey()
-          print("not hasframe")
           break
 
       frameWidth = frame.shape[1]
@@ -168,16 +166,25 @@ def computeAngleDiffs(points1, points2):
             ratio2 = yDiff2/(xDiff2 * 1.0 + epsilon)
             angle2 = np.arctan2(1, 1/(ratio2 + epsilon))
 
+            print("ANGLE")
+            print(angle1, angle2)
             rawAngleDiff = abs(angle2 - angle1)
             validCount += 1
             angleDiff += min(rawAngleDiff, 2*math.pi - rawAngleDiff)
+            print("AngleDiff:", angleDiff)
   # the acc is 1 - (our error/max possible error)
-  accuracy = 1 - (angleDiff/validCount*math.pi)
-  return accuracy
+  accuracy = 1 - (angleDiff/(validCount*math.pi))
+  return accuracy * 100
+
+def computeAvg(running_avg, new_num, curr_length):
+  if curr_length == 1:
+    return new_num
+  else:
+    return running_avg * (curr_length - 1)/curr_length + new_num/curr_length
 
 
-youtube_video = "cut1.mp4"
-my_video = "cut2.mp4"
+youtube_video = "test1.mp4"
+my_video = "test2.mp4"
 
 ref_frames, ref_points = processVideo(youtube_video)
 print("processed vid1")
@@ -187,21 +194,28 @@ print("processed vid2")
 print(len(ref_points), len(test_points))
 
 # stop once the shorter video is over
+running_avg = 0
 for frame_num in range(min(len(ref_frames), len(test_frames))):
   frame_1 = ref_frames[frame_num]
   frame_2 = test_frames[frame_num]
 
   frame_acc = computeAngleDiffs(ref_points[frame_num], test_points[frame_num])
+  running_avg = computeAvg(running_avg, frame_acc, frame_num + 1)
 
-  cv.putText(frame_2, '%.2fpercent' % frame_acc, (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+  print("FRAMEACC:", frame_acc)
   
-
   # in order to concatenate, both imgaes need to have the same width
-  width_ratio = frame_1.shape[0]/frame_2.shape[0]
-  cv.resize(frame_2, (0, 0), fx=width_ratio, fy=width_ratio)
+  width_ratio = frame_1.shape[1]/frame_2.shape[1]
+  if width_ratio < 1:
+    cv.resize(frame_2, (0, 0), fx=width_ratio, fy=width_ratio)
+  else:
+    cv.resize(frame_1, (0, 0), fx=1/width_ratio, fy=1/width_ratio)
 
+  print("DIMS:", width_ratio, frame_1.shape[1], frame_2.shape[1])
   im_concat = cv.vconcat([frame_1, frame_2])
+  height = im_concat.shape[0]
+  cv.putText(im_concat, '%.2f' % running_avg + "% ACC", (10, height - 10), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
 
-
-  cv.imshow('test', im_concat)
-  cv.imwrite('./results/frame' + str(frame_num).zfill(4) + '.jpg', im_concat)
+  #cv.imshow('test', im_concat)
+  success = cv.imwrite('./results2/frame' + str(frame_num).zfill(4) + '.png', im_concat)
+  print("saving frame #", frame_num, success)
