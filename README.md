@@ -22,3 +22,5 @@ To run:
 Ensure you meet the preqrequistes to run OpenPose. They can be found [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/installation/1_prerequisites.md)
 
 `python openpose.py --dataset MPI --model ./openpose/models/pose/mpi/pose_iter_160000.caffemodel --proto ./openpose/models/pose/mpi/pose_deploy_linevec_faster_4_stages.prototxt` 
+
+![Screenshot](screenshot.png)
