@@ -3,6 +3,7 @@
 import cv2 as cv
 import numpy as np
 import argparse
+import math
 
 parser = argparse.ArgumentParser(
         description='This script is used to demonstrate OpenPose human pose estimation network '
@@ -72,11 +73,15 @@ net = cv.dnn.readNet(cv.samples.findFile(args.proto), cv.samples.findFile(args.m
 def processVideo(file_path):
   cap = cv.VideoCapture(file_path)
   frame_points = []
+  frames = []
+  frame_num = 0
 
+  print("before")
   while cv.waitKey(1) < 0:
       hasFrame, frame = cap.read()
       if not hasFrame:
           cv.waitKey()
+          print("not hasframe")
           break
 
       frameWidth = frame.shape[1]
@@ -128,14 +133,17 @@ def processVideo(file_path):
       t, _ = net.getPerfProfile()
       freq = cv.getTickFrequency() / 1000
       # cv.putText(frame, '%.2fms' % (t / freq), (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+      print("processed frame #", frame_num)
+      frame_num += 1
       frames.append(frame)
 
       #cv.imshow('OpenPose using OpenCV', frame)
-  return frames, points  
+  return frames, frame_points  
 
 
 def computeAngleDiffs(points1, points2):
   validCount = 0
+  angleDiff = 0
   for pair in POSE_PAIRS:
           partFrom = pair[0]
           partTo = pair[1]
@@ -147,41 +155,53 @@ def computeAngleDiffs(points1, points2):
           idTo = BODY_PARTS[partTo]
 
           # if they are not None
+          #if None in (points1[idFrom])
+          epsilon = .00001
           if points1[idFrom] and points1[idTo] and points2[idFrom] and points2[idTo]:
-            validCount += 1
             yDiff1 = points1[idTo][1] - points1[idFrom][1]
             xDiff1 = points1[idTo][0] - points1[idFrom][0]
-            ratio1 = yDiff1/(xDiff1*1.0)
-            angle1 = math.arctan2(1, 1/ratio1)
+            ratio1 = yDiff1/(xDiff1*1.0 + epsilon)
+            angle1 = np.arctan2(1, 1/(ratio1 + epsilon))
 
             yDiff2 = points2[idTo][1] - points2[idFrom][1]
             xDiff2 = points2[idTo][0] - points2[idFrom][0]
-            ratio2 = yDiff2/(xDiff2 * 1.0)
-            angle2 = math.arctan2(1, 1/ratio2)
+            ratio2 = yDiff2/(xDiff2 * 1.0 + epsilon)
+            angle2 = np.arctan2(1, 1/(ratio2 + epsilon))
 
             rawAngleDiff = abs(angle2 - angle1)
-
+            validCount += 1
             angleDiff += min(rawAngleDiff, 2*math.pi - rawAngleDiff)
   # the acc is 1 - (our error/max possible error)
   accuracy = 1 - (angleDiff/validCount*math.pi)
   return accuracy
 
 
-youtube_video = 
+youtube_video = "cut1.mp4"
+my_video = "cut2.mp4"
 
 ref_frames, ref_points = processVideo(youtube_video)
+print("processed vid1")
 test_frames, test_points = processVideo(my_video)
-
+print("processed vid2")
 #the point arrays are 2d arrays where unfound points in a frame are None
-
+print(len(ref_points), len(test_points))
 
 # stop once the shorter video is over
 for frame_num in range(min(len(ref_frames), len(test_frames))):
   frame_1 = ref_frames[frame_num]
   frame_2 = test_frames[frame_num]
 
-  frame_acc = computeAngleDiffs(ref_points[frame_num], test_frames[frame_num])
+  frame_acc = computeAngleDiffs(ref_points[frame_num], test_points[frame_num])
 
-  cv.putText(frame_2, '%.2f%' % frame_acc, (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
-  im_concat = cv2.vconcat([frame_1, frame_2])
-  cv2.imwrite('./results/frame' + frame_num.zfill(4) + '.jpg')
+  cv.putText(frame_2, '%.2fpercent' % frame_acc, (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+  
+
+  # in order to concatenate, both imgaes need to have the same width
+  width_ratio = frame_1.shape[0]/frame_2.shape[0]
+  cv.resize(frame_2, (0, 0), fx=width_ratio, fy=width_ratio)
+
+  im_concat = cv.vconcat([frame_1, frame_2])
+
+
+  cv.imshow('test', im_concat)
+  cv.imwrite('./results/frame' + str(frame_num).zfill(4) + '.jpg', im_concat)
