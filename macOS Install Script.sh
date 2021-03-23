@@ -1,4 +1,4 @@
-#1/bin/bash
+#!/bin/bash
 git clone https://github.com/MyYogurt/OpenDance.git
 cd OpenDance/
 git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose
