@@ -12,14 +12,17 @@ Open Dance allows users to search any music video on the internet and dance to i
 
 OpenDance runs on the [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) technology developed by the Carnegie Mellon Perceptual Computing Lab. OpenPose is a real-time system to detect human keypoints on images and videos.
 
-## Challenges we ran into
-Some challenges we face while developing this program was figuring out the correct dependencies required for the open pose repository.
-
 ## Running
 
 To run:
 
 Ensure you meet the preqrequistes to run OpenPose. They can be found [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/installation/1_prerequisites.md)
+
+macOS users who have dveloped command line tools already installed can get all dependencies and code by running:
+
+`curl -s https://raw.githubusercontent.com/MyYogurt/OpenDance/main/macOS%20Install%20Script.sh | bash`
+
+Once all code and dependencies are installed run:
 
 `python openpose.py --dataset MPI --model ./openpose/models/pose/mpi/pose_iter_160000.caffemodel --proto ./openpose/models/pose/mpi/pose_deploy_linevec_faster_4_stages.prototxt` 
 
