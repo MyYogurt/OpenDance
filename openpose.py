@@ -184,7 +184,7 @@ def computeAvg(running_avg, new_num, curr_length):
 
 
 youtube_video = "test1.mp4"
-my_video = "test2.mp4"
+my_video = "test2.mov"
 
 ref_frames, ref_points = processVideo(youtube_video)
 print("processed vid1")
