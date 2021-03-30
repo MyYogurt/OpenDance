@@ -71,9 +71,13 @@ inScale = args.scale
 
 net = cv.dnn.readNet(cv.samples.findFile(args.proto), cv.samples.findFile(args.model))
 
+totalFrames = 0
+
 
 def processVideo(file_path):
+    global totalFrames
     cap = cv.VideoCapture(file_path)
+    totalFrames = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
     frame_points = []
     frames = []
     frame_num = 0
@@ -133,11 +137,9 @@ def processVideo(file_path):
         t, _ = net.getPerfProfile()
         freq = cv.getTickFrequency() / 1000
         # cv.putText(frame, '%.2fms' % (t / freq), (10, 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
-        print("processed frame #", frame_num)
+        print("Processed frame #"+str(frame_num))
         frame_num += 1
         frames.append(frame)
-
-        #cv.imshow('OpenPose using OpenCV', frame)
     return frames, frame_points
 
 
@@ -219,9 +221,8 @@ def process():
                    (255, 255, 255))
 
         # cv.imshow('test', im_concat)
-        success = cv.imwrite(output_folder + str(frame_num).zfill(4) + '.png', im_concat)
+        success = cv.imwrite("./frames/" + str(frame_num).zfill(4) + '.png', im_concat)
         print("saving frame #", frame_num, success)
-
 
 root = tk.Tk()
 root.title('OpenDance')
