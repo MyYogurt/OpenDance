@@ -18,7 +18,7 @@ To run:
 
 Ensure you meet the preqrequistes to run OpenPose. They can be found [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/installation/1_prerequisites.md)
 
-macOS users who have dveloped command line tools already installed can get all dependencies and code by running:
+macOS users who have git already installed can get all dependencies (including HomeBrew) and code by running:
 
 `curl -s https://raw.githubusercontent.com/MyYogurt/OpenDance/main/macOS%20Install%20Script.sh | bash`
 
